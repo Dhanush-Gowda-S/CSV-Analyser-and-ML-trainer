@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1 class="mb-4">Visualize: {{ filename }}</h1>
+
+<!-- ==================================================
+     COLUMN SUMMARY (FULL WIDTH TOP)
+================================================== -->
+<div class="card p-3 mb-4">
+    <h4>Column Summary</h4>
+    <div id="colSummary">
+        <p><strong>Loading column info...</strong></p>
+    </div>
+
+    <hr>
+
+    <h5>Chart Type Guide</h5>
+    <table class="table table-sm">
+        <thead>
+            <tr><th>Chart</th><th>Best Use</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>Line</td><td>Numeric X → Numeric Y</td></tr>
+            <tr><td>Bar</td><td>Categorical X → Numeric Y</td></tr>
+            <tr><td>Grouped Bar</td><td>Category + Subcategories</td></tr>
+            <tr><td>Pie / Doughnut</td><td>Category distribution</td></tr>
+            <tr><td>Scatter</td><td>Numeric vs Numeric</td></tr>
+            <tr><td>Histogram</td><td>Distribution of one Numeric</td></tr>
+            <tr><td>Boxplot</td><td>Statistical spread by Category</td></tr>
+            <tr><td>Heatmap</td><td>Numeric correlation matrix</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- ==================================================
+     SIDE–BY–SIDE: Controls (Left) + Canvas (Right)
+================================================== -->
+<div class="row">
+
+    <!-- LEFT PANEL -->
+    <div class="col-md-4">
+        <div class="card p-3">
+
+            <h4>Chart Controls</h4>
+
+            <!-- X -->
+            <label class="form-label mt-3">X-axis</label>
+            <select id="xcol" class="form-control"></select>
+
+            <!-- Y -->
+            <label class="form-label mt-3">Y-axis</label>
+            <select id="ycol" class="form-control"></select>
+
+            <!-- TYPE -->
+            <label class="form-label mt-3">Chart Type</label>
+            <select id="chartType" class="form-control"></select>
+
+            <!-- AGG -->
+            <label class="form-label mt-3">Aggregation (Category charts)</label>
+            <select id="aggFunc" class="form-control">
+                <option value="count">COUNT</option>
+                <option value="sum">SUM</option>
+                <option value="mean">AVERAGE</option>
+                <option value="min">MIN</option>
+                <option value="max">MAX</option>
+            </select>
+
+            <!-- TOP N -->
+            <label class="form-label mt-3">Top N (for categories)</label>
+            <input id="topN" class="form-control" type="number" value="0">
+
+            <!-- GROUP-BY -->
+            <label class="form-label mt-3">Group By (optional)</label>
+            <select id="groupBy" class="form-control"><option value="">-- none --</option></select>
+
+            <!-- Buttons -->
+            <div class="d-flex mt-4">
+                <button id="genBtn" class="btn btn-primary me-2">Generate Chart</button>
+                <button id="downloadBtn" class="btn btn-secondary">Download PNG</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- RIGHT: CHART CANVAS -->
+    <div class="col-md-8">
+        <div class="card p-3 mb-3">
+            <h4>Chart Output</h4>
+
+            <div id="chartWrapper"
+                 style="min-height:520px; height:520px; position: relative;">
+                <canvas id="vizCanvas"
+                    style="position:absolute; top:0; left:0; width:100%; height:100%;
+                           background:white; border-radius:12px;">
+                </canvas>
+            </div>
+
+        </div>
+
+        <!-- NOTES AREA (must exist for JS) -->
+        <div class="card p-3">
+            <h4>Notes</h4>
+            <ul id="vizNotes">
+                <li>Large datasets may process slower.</li>
+                <li>Advanced charts depend on plugin availability.</li>
+                <li>Heatmap automatically computes correlations.</li>
+            </ul>
+        </div>
+
+    </div>
+</div>
+
+<!-- ==================================================
+     PASS DATA TO JS
+================================================== -->
+<script id="chart-data" type="application/json">
+    {{ data | tojson | safe }}
+</script>
+
+<!-- ==================================================
+     CHART.JS CORE + PLUGINS
+================================================== -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<!-- datalabels -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+
+<!-- boxplot/violin -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-chart-boxplot@3.0.0/build/Chart.BoxPlot.js"></script>
+
+<!-- matrix heatmap -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix"></script>
+
+<!-- histogram -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-chart-histogram"></script>
+
+<!-- MAIN VISUALIZATION JS -->
+<script src="{{ url_for('static', filename='js/visualize.js') }}"></script>
+
+{% endblock %}

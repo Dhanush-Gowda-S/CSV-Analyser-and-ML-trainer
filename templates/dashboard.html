@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Welcome, {{ current_user.username }}</h2>
+
+<h4 class="mt-4">Your Uploaded Files</h4>
+<table class="table table-dark table-bordered">
+    <thead>
+        <tr><th>File</th><th>Uploaded</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+        {% for f in files %}
+        <tr>
+            <td>{{ f[2] }}</td>
+            <td>{{ f[3] }}</td>
+            <td>
+                <a class="btn btn-primary btn-sm" href="/visualize/{{ f[0] }}">Visualize</a>
+                <a class="btn btn-warning btn-sm" href="/analyze_result/{{ f[0] }}">Analyze</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h4 class="mt-4">Your Models</h4>
+<table class="table table-dark table-bordered">
+    <thead>
+        <tr><th>Name</th><th>Created</th><th>Download</th></tr>
+    </thead>
+    <tbody>
+        {% for m in models %}
+        <tr>
+            <td>{{ m[1] }}</td>
+            <td>{{ m[3] }}</td>
+            <td><a class="btn btn-success btn-sm" href="/download_model/{{ m[0] }}">Download</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h4 class="mt-4">Activity Log</h4>
+<ul class="list-group">
+    {% for l in logs %}
+    <li class="list-group-item bg-dark text-white">{{ l[1] }} → {{ l[0] }}</li>
+    {% endfor %}
+</ul>
+
+{% endblock %}

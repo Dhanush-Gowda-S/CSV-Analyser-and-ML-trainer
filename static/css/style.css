@@ -1,0 +1,110 @@
+/* Global dark theme */
+body {
+    background: #0c0c0c !important;
+    color: white !important;
+    font-family: Arial, sans-serif;
+}
+
+/* Cards and tables */
+.table {
+    background: #111 !important;
+    color: white !important;
+}
+
+.table-bordered td, 
+.table-bordered th {
+    border: 1px solid #333 !important;
+}
+
+.list-group-item {
+    background: #111 !important;
+    color: white !important;
+    border: 1px solid #333 !important;
+}
+
+/* Navbar */
+.navbar {
+    border-bottom: 2px solid #222;
+}
+
+.nav-link {
+    color: #bbb !important;
+}
+
+.nav-link:hover {
+    color: white !important;
+}
+
+/* Buttons */
+.btn-primary {
+    background: #0066ff;
+    border: none;
+}
+
+.btn-warning {
+    background: #cc8800;
+    border: none;
+}
+
+.btn-danger {
+    background: #cc0000;
+    border: none;
+}
+
+.btn-success {
+    background: #009933;
+    border: none;
+}
+
+/* Profile photo */
+.profile-pic {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 2px solid #444;
+    object-fit: cover;
+}
+
+/* Modal dark theme */
+.modal-content {
+    background: #111 !important;
+    color: white !important;
+    border: 2px solid #333;
+}
+
+/* Progress bar */
+.progress {
+    background: #333 !important;
+}
+
+.progress-bar {
+    background: #00cc66 !important;
+    font-weight: bold;
+}
+
+/* Feature chart */
+#featureChart {
+    background: #000;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+/* Text fields */
+.form-control {
+    background: #1a1a1a !important;
+    color: #eee !important;
+    border: 1px solid #333 !important;
+}
+
+.form-control:focus {
+    border-color: #0066ff !important;
+}
+
+/* Higlighted boxes */
+#guidelinesBox {
+    border: 1px solid #444;
+}
+
+#customBox {
+    background: #111;
+}

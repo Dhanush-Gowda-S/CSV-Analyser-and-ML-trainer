@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card p-4 mt-4" style="max-width: 600px; margin:auto;">
+    <h2 class="mb-3">Create New Admin</h2>
+
+    <!-- SUCCESS / ERROR MESSAGES -->
+    {% if message %}
+    <div class="alert alert-info">{{ message }}</div>
+    {% endif %}
+
+    <form method="POST" action="/admin/create_admin">
+
+        <!-- USERNAME -->
+        <div class="form-group mt-2">
+            <label><strong>Username</strong></label>
+            <input type="text" name="username" class="form-control" required placeholder="Enter admin username">
+        </div>
+
+        <!-- EMAIL -->
+        <div class="form-group mt-3">
+            <label><strong>Email</strong></label>
+            <input type="email" name="email" class="form-control" required placeholder="Enter admin email">
+        </div>
+
+        <!-- PASSWORD -->
+        <div class="form-group mt-3">
+            <label><strong>Password</strong></label>
+            <input type="password" name="password" class="form-control" required placeholder="Enter password">
+        </div>
+
+        <!-- CONFIRM PASSWORD -->
+        <div class="form-group mt-3">
+            <label><strong>Confirm Password</strong></label>
+            <input type="password" name="confirm_password" class="form-control" required placeholder="Confirm password">
+        </div>
+
+        <button class="btn btn-success mt-4" style="width: 100%;">Create Admin</button>
+
+        <!-- BACK -->
+        <a href="/admin" class="btn btn-secondary mt-3" style="width:100%;">⬅ Back to Admin Panel</a>
+
+    </form>
+</div>
+
+{% endblock %}

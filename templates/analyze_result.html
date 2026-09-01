@@ -1,0 +1,266 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- PROFILE BAR -->
+<div class="d-flex justify-content-end">
+  <div class="d-flex align-items-center mb-3">
+    {% if current_user.profile_photo %}
+        <img src="{{ url_for('static', filename=current_user.profile_photo) }}"
+             width="45" height="45" class="rounded-circle me-2">
+    {% else %}
+        <img src="{{ url_for('static', filename='images/default_avatar.png') }}"
+             width="45" height="45" class="rounded-circle me-2">
+    {% endif %}
+    <h2>Analyze: {{ filename }}</h2>
+</div>
+
+</div>
+
+<h2>Analyze: {{ filename }}</h2>
+<hr>
+
+<!-- ============================= -->
+<!-- DATASET SUMMARY -->
+<!-- ============================= -->
+<h4>Dataset Summary</h4>
+<table class="table table-bordered">
+    <tr>
+        <th>Can Train?</th>
+        <td>{% if can_train %}<span class="text-success">YES</span>{% else %}<span class="text-danger">NO</span>{% endif %}</td>
+    </tr>
+    <tr>
+        <th>Total Columns</th>
+        <td>{{ cols|length }}</td>
+    </tr>
+
+    <tr>
+        <th>Numeric Columns</th>
+        <td>{{ numeric_cols|length }}</td>
+    </tr>
+
+    <tr>
+        <th>String Columns</th>
+        <td>{{ string_cols|length }}</td>
+    </tr>
+
+    <tr>
+        <th>ML Target Suggestions</th>
+        <td>
+            {% for t in ml_targets %}
+                <span class="badge bg-primary">{{ t }}</span>
+            {% endfor %}
+        </td>
+    </tr>
+</table>
+
+<hr>
+
+<!-- ============================= -->
+<!-- COLUMN TYPES -->
+<!-- ============================= -->
+<h3>Column Types</h3>
+
+<h4>Numeric Columns</h4>
+<ul>
+{% for c in numeric_cols %}
+    <li>{{ c }}</li>
+{% endfor %}
+</ul>
+
+<h4>String Columns</h4>
+<ul>
+{% for c in string_cols %}
+    <li>{{ c }}</li>
+{% endfor %}
+</ul>
+
+<hr>
+
+<!-- ============================= -->
+<!-- MISSING VALUES -->
+<!-- ============================= -->
+<h3>Missing Values</h3>
+<table class="table table-bordered">
+    <thead><tr><th>Column</th><th>Missing Count</th></tr></thead>
+    <tbody>
+        {% for col, val in missing.items() %}
+        <tr>
+            <td>{{ col }}</td>
+            <td>{{ val }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<hr>
+
+<!-- ============================= -->
+<!-- SCHEMA DISPLAY -->
+<!-- ============================= -->
+<h3>Schema (Spark Types)</h3>
+<table class="table table-bordered">
+    <thead><tr><th>Column</th><th>Type</th></tr></thead>
+    <tbody>
+        {% for name, dtype in schema %}
+        <tr><td>{{ name }}</td><td>{{ dtype }}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<hr>
+
+<!-- ============================= -->
+<!-- CORRELATIONS (SMALL PREVIEW) -->
+<!-- ============================= -->
+<h3>Correlations</h3>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;max-height:250px;overflow:auto;">
+{
+{% for key, val in corrs.items() %}
+    "{{ key }}": {{ val }},
+{% endfor %}
+}
+</pre>
+
+<hr>
+
+<!-- ============================= -->
+<!-- TRAINING PANEL -->
+<!-- ============================= -->
+<h2 class="mt-4">Train Machine Learning Model</h2>
+
+{% if not can_train %}
+<div class="alert alert-danger">
+    This dataset is NOT suitable for ML (needs numeric target + enough rows).
+</div>
+{% endif %}
+
+<form id="trainForm" method="POST" action="/start_train" onsubmit="return startTrain(this)">
+
+<input type="hidden" name="file_id" value="{{ file_id }}">
+
+<!-- TARGET -->
+<div class="form-group mt-3">
+    <label><strong>Target Column</strong></label>
+    <select class="form-control" name="target" required>
+        {% for t in ml_targets %}
+        <option value="{{ t }}">{{ t }}</option>
+        {% endfor %}
+    </select>
+</div>
+
+<!-- MODEL TYPE -->
+<div class="form-group mt-3">
+    <label><strong>Model Type</strong></label>
+    <select name="model_type" class="form-control" id="modelTypeSelect">
+        <option value="regression">Regression</option>
+        <option value="classification">Classification</option>
+    </select>
+</div>
+
+<!-- TRAINING MODE -->
+<div class="form-group mt-3">
+    <label><strong>Training Mode</strong></label>
+    <select name="model_mode" id="modelModeSelect" class="form-control" onchange="toggleTrainingMode()">
+        <option value="A">Automatic — All Features</option>
+        <option value="B" selected>Automatic — Best Features (Correlation)</option>
+        <option value="custom">Custom (Advanced)</option>
+    </select>
+</div>
+
+<!-- CUSTOM MODE OPTIONS -->
+<div id="customBox" style="display:none; margin-top:15px; padding:15px; border:1px solid #444;">
+    <h5>Custom Feature Selection</h5>
+
+    <label>Include Categorical Columns?</label>
+    <input type="checkbox" name="include_categorical" checked>
+
+    <label class="mt-3">Select Features (comma-separated)</label>
+    <textarea name="selected_features" class="form-control" rows="3"
+              placeholder="Example: alcintake2014, overspeed2014, region">
+    </textarea>
+</div>
+
+<!-- MODEL CHOICE -->
+<div class="form-group mt-3">
+    <label><strong>Algorithm</strong></label>
+    <select name="model_choice" id="modelChoiceSelect" class="form-control">
+        <option value="LinearRegression">Linear Regression</option>
+        <option value="RandomForestRegressor">Random Forest Regressor</option>
+        <option value="GBTRegressor">GBT Regressor (Recommended)</option>
+    </select>
+</div>
+
+<!-- MODEL NAME -->
+<div class="form-group mt-3">
+    <label><strong>Model Name</strong></label>
+    <input class="form-control" name="model_name" placeholder="my_model_2025">
+</div>
+
+<button class="btn btn-success mt-4" {% if not can_train %}disabled{% endif %}>Start Training 🚀</button>
+</form>
+
+<hr>
+
+<!-- ============================= -->
+<!-- GUIDELINES PANEL -->
+<!-- ============================= -->
+<h3>Model Selection Guidelines</h3>
+<div id="guidelinesBox"
+     style="background:#222;color:#fff;padding:15px;border-radius:10px;white-space:pre-wrap;">
+{{ model_guidelines['regression'] }}
+</div>
+
+<!-- ============================= -->
+<!-- TRAINING MODALS -->
+<!-- ============================= -->
+
+<!-- Training Modal -->
+<div class="modal" tabindex="-1" id="trainModal">
+  <div class="modal-dialog">
+    <div class="modal-content" style="background:#111;color:#fff;">
+      <div class="modal-header">
+        <h5 class="modal-title">Model Training in Progress...</h5>
+      </div>
+      <div class="modal-body">
+        <p>Please wait while your model is being trained.</p>
+
+        <div class="progress" style="height:25px;">
+            <div id="progress-bar" class="progress-bar bg-success" style="width:0%">0%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Result Modal -->
+<div class="modal" tabindex="-1" id="resultModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content" style="background:#111;color:#fff;">
+      <div class="modal-header">
+        <h5 class="modal-title">Training Completed</h5>
+      </div>
+      <div class="modal-body">
+
+        <h4>Model Summary</h4>
+        <pre id="modelSummary" style="background:#000;color:#0f0;padding:10px;border-radius:6px;"></pre>
+
+        <h4 class="mt-4">Feature Importances</h4>
+        <canvas id="featureChart" height="150"></canvas>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/static/js/train_status.js"></script>
+
+<script>
+function toggleTrainingMode() {
+    const mode = document.getElementById("modelModeSelect").value;
+    const box = document.getElementById("customBox");
+    box.style.display = (mode === "custom") ? "block" : "none";
+}
+</script>
+
+{% endblock %}

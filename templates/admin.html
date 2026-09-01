@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2 class="mb-4">Admin Panel</h2>
+
+<!-- CREATE ADMIN BUTTON -->
+<div class="mb-3">
+    <a href="{{ url_for('admin_create_admin') }}" class="btn btn-success">
+        ➕ Create New Admin
+    </a>
+</div>
+
+<!-- USERS TABLE -->
+<div class="card p-3 mb-4">
+    <h3>Users</h3>
+
+    <table class="table table-dark table-bordered table-striped mt-3">
+        <thead>
+            <tr>
+                <th>Avatar</th>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th style="width: 240px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            {% for u in users %}
+            <tr class="admin-user-row">
+                <!-- PROFILE PHOTO -->
+                <td>
+                    {% if u[4] %}
+                        <img src="{{ url_for('static', filename=u[4]) }}" width="40" height="40">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='images/default_avatar.png') }}" width="40" height="40">
+                    {% endif %}
+                </td>
+
+                <td>{{ u[0] }}</td>
+                <td>{{ u[1] }}</td>
+                <td>{{ u[2] }}</td>
+
+                <!-- ADMIN BADGE -->
+                <td>
+                    {% if u[3] == 1 %}
+                        <span class="badge bg-success">Admin</span>
+                    {% else %}
+                        <span class="badge bg-secondary">User</span>
+                    {% endif %}
+                </td>
+
+                <!-- ACTION BUTTONS -->
+                <td>
+
+                    {% if u[0] != current_user.id %}
+                        {% if u[3] == 0 %}
+                            <!-- PROMOTE -->
+                            <form method="POST" action="/admin/promote/{{ u[0] }}" style="display:inline;">
+                                <button class="btn btn-primary btn-sm">Promote to Admin</button>
+                            </form>
+                        {% else %}
+                            <!-- DEMOTE -->
+                            <form method="POST" action="/admin/demote/{{ u[0] }}" style="display:inline;">
+                                <button class="btn btn-warning btn-sm">Demote</button>
+                            </form>
+                        {% endif %}
+
+                        <!-- DELETE USER -->
+                        <form method="POST" action="/admin/delete_user/{{ u[0] }}" style="display:inline;">
+                            <button class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    {% else %}
+                        <span class="text-info">Your Account</span>
+                    {% endif %}
+
+                </td>
+            </tr>
+            {% endfor %}
+
+        </tbody>
+    </table>
+</div>
+
+<!-- ACTIVITY LOGS -->
+<div class="card p-3 mb-4">
+    <h3 class="mb-3">Activity Logs</h3>
+
+    <ul class="list-group">
+        {% for l in logs %}
+        <li class="list-group-item">
+            <strong>User {{ l[0] }}</strong> — {{ l[1] }}
+            <span class="text-muted">({{ l[2] }})</span>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+
+{% endblock %}
